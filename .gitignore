@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large datasets
+*.csv
+*.xlsx
+*.zip
+*.rar
+
+# Model files
+*.h5
+*.keras
+*.pt
+*.pth
+*.pkl
+
+# Secrets
+*.pem
+*.key
