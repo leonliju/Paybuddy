@@ -15,6 +15,79 @@
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Sterling Noir design system (matches Stitch templates in stitch_paybuddy_ai_finance_dashboard.zip) -->
+    <!-- Loaded only for pages that opt in via the `dark` class + sterling-noir utility classes; does not affect existing light-theme pages. -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#050505",
+              "on-background": "#ffffff",
+              "surface": "#050505",
+              "surface-dim": "#0a0a0a",
+              "surface-container-lowest": "#000000",
+              "surface-container-low": "#0a0a0a",
+              "surface-container": "#111111",
+              "surface-container-high": "#1a1a1a",
+              "surface-container-highest": "#262626",
+              "surface-bright": "#1f2937",
+              "surface-variant": "#1f2937",
+              "on-surface": "#f3f4f6",
+              "on-surface-variant": "#9ca3af",
+              "primary": "#e5e7eb",
+              "on-primary": "#000000",
+              "primary-container": "#374151",
+              "on-primary-container": "#ffffff",
+              "secondary": "#c0c0c0",
+              "on-secondary": "#000000",
+              "secondary-container": "#374151",
+              "on-secondary-container": "#f3f4f6",
+              "tertiary": "#c0c0c0",
+              "on-tertiary": "#000000",
+              "tertiary-container": "#374151",
+              "on-tertiary-container": "#f3f4f6",
+              "error": "#fca5a5",
+              "on-error": "#f87171",
+              "error-container": "#991b1b",
+              "on-error-container": "#fee2e2",
+              "outline": "#4b5563",
+              "outline-variant": "#374151"
+            },
+            borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+            spacing: { "gutter": "24px", "stack-sm": "12px", "stack-md": "24px", "stack-lg": "48px", "container-padding": "32px", "unit": "8px" },
+            fontFamily: {
+              "display-lg": ["Sora", "sans-serif"],
+              "headline-lg": ["Sora", "sans-serif"],
+              "headline-lg-mobile": ["Sora", "sans-serif"],
+              "label-sm": ["JetBrains Mono", "monospace"],
+              "body-md": ["Inter", "sans-serif"]
+            },
+            fontSize: {
+              "display-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+              "headline-lg": ["32px", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "600" }],
+              "headline-lg-mobile": ["24px", { lineHeight: "1.2", fontWeight: "600" }],
+              "label-sm": ["12px", { lineHeight: "1.0", letterSpacing: "0.1em", fontWeight: "500" }],
+              "body-md": ["16px", { lineHeight: "1.6", letterSpacing: "0.01em", fontWeight: "400" }]
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      .sn-neo { box-shadow: -4px -4px 12px rgba(255,255,255,0.02), 8px 8px 24px rgba(0,0,0,0.8); }
+      .sn-recessed { box-shadow: inset -4px -4px 12px rgba(255,255,255,0.02), inset 4px 4px 12px rgba(0,0,0,0.6); }
+      .sn-glow { box-shadow: 0 0 30px rgba(192,192,192,0.1); }
+      .sn-tabular { font-variant-numeric: tabular-nums; }
+      .sn-bar-fill { transition: width 1s cubic-bezier(0.4,0,0.2,1), background-color .3s ease; }
+    </style>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
