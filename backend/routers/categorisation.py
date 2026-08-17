@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from database import get_connection
 from auth import get_current_user
+from routers.transactions import _normalise
 
 router = APIRouter()
 
@@ -56,7 +57,54 @@ def correct(req: CorrectionRequest, user=Depends(get_current_user)):
         """, [user["user_id"], req.transaction_id, pattern,
               original_category, req.corrected_category])
 
+        # Extend the user's learned dictionary so future transactions from
+        # this merchant are categorised correctly without another correction.
+        # Prefer the merchant name (more stable across transactions than
+        # free-text description); fall back to description only if merchant
+        # is blank. Known limitation: a multi-word description fallback can
+        # be over-specific and won't generalise the way a proper NER-based
+        # merchant extractor would — see the NLP fallback stage follow-up.
+        keyword_source = txn[1] if txn[1] and txn[1].strip() else txn[0]
+        keyword = _normalise(keyword_source or "")[:100]
+
+        if keyword:
+            existing_override = con.execute("""
+                SELECT override_id FROM merchant_overrides
+                WHERE user_id=? AND keyword=?
+            """, [user["user_id"], keyword]).fetchone()
+
+            if existing_override:
+                con.execute("""
+                    UPDATE merchant_overrides
+                    SET category=?, correction_count = correction_count + 1,
+                        updated_at=current_timestamp
+                    WHERE override_id=?
+                """, [req.corrected_category, existing_override[0]])
+            else:
+                con.execute("""
+                    INSERT INTO merchant_overrides (user_id, keyword, category)
+                    VALUES (?,?,?)
+                """, [user["user_id"], keyword, req.corrected_category])
+
         return {"message": "Category updated and feedback stored"}
+    finally:
+        con.close()
+
+@router.get("/overrides")
+def list_overrides(user=Depends(get_current_user)):
+    """Learned merchant/keyword -> category mappings for this user, most
+    frequently corrected first, so corrections are visible/auditable rather
+    than a silent black box."""
+    con = get_connection()
+    try:
+        rows = con.execute("""
+            SELECT keyword, category, correction_count, updated_at
+            FROM merchant_overrides
+            WHERE user_id=?
+            ORDER BY correction_count DESC, updated_at DESC
+        """, [user["user_id"]]).fetchall()
+        cols = ['keyword', 'category', 'correction_count', 'updated_at']
+        return [dict(zip(cols, r)) for r in rows]
     finally:
         con.close()
 
