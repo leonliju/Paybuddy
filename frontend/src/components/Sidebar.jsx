@@ -23,17 +23,25 @@ export default function Sidebar() {
   const handleLogout = () => { logout(); navigate('/'); };
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-logo">
-        <h2>PAYBUDDY</h2>
-        <p>Personal Finance Intelligence</p>
+    <div
+      className="dark fixed left-0 top-0 h-screen w-[220px] flex flex-col bg-surface-container-lowest border-r border-outline-variant/20 z-50"
+    >
+      <div className="px-5 py-6 border-b border-outline-variant/10">
+        <h2 className="font-headline-lg-mobile text-lg font-bold text-primary tracking-tight">PAYBUDDY</h2>
+        <p className="text-[11px] text-on-surface-variant mt-0.5">Personal Finance Intelligence</p>
       </div>
 
-      <nav className="sidebar-nav">
+      <nav className="flex-1 py-4 flex flex-col gap-1 px-3 overflow-y-auto">
         {links.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to} to={to}
-            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-full text-sm transition-colors ${
+                isActive
+                  ? 'bg-secondary-container/30 text-primary border border-secondary-container/50 shadow-[0_0_15px_rgba(192,192,192,0.08)]'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 border border-transparent'
+              }`
+            }
           >
             <Icon size={16} />
             {label}
@@ -41,14 +49,17 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="sidebar-footer">
-        <div style={{ padding: '8px 16px', fontSize: 11, color: '#666', marginBottom: 4 }}>
-          Logged in as <strong style={{ color: '#aaa' }}>{user?.username}</strong>
+      <div className="border-t border-outline-variant/10 py-3 px-3">
+        <div className="px-3 py-2 text-[11px] text-on-surface-variant">
+          Logged in as <strong className="text-on-surface">{user?.username}</strong>
         </div>
-        <div className="nav-item" onClick={handleLogout}>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-full text-sm text-on-surface-variant hover:text-error hover:bg-error-container/10 transition-colors"
+        >
           <LogOut size={16} />
           Logout
-        </div>
+        </button>
       </div>
     </div>
   );
