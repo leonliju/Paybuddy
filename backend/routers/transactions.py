@@ -50,8 +50,34 @@ CATEGORY_PATTERNS = {
     'Income':        re.compile(r'\b(?:salary|credit|income|bonus|stipend|payment received)\b'),
 }
 
-def categorise(description: str, merchant: str) -> tuple:
+def _lookup_override(con, user_id: int, norm: str, norm_stripped: str):
     """
+    Stage 0: check this user's learned corrections before falling back to
+    the shared dictionary/regex stages. A prior explicit correction should
+    always outrank a generic merchant-dictionary or keyword-regex guess.
+    Returns the learned category, or None if no override matches.
+    """
+    if con is None or user_id is None:
+        return None
+    rows = con.execute(
+        "SELECT keyword, category FROM merchant_overrides WHERE user_id=?",
+        [user_id]
+    ).fetchall()
+    for keyword, cat in rows:
+        if not keyword:
+            continue  # defensive: never let a blank keyword match everything
+        keyword_stripped = keyword.replace(' ', '')
+        if keyword in norm or keyword_stripped in norm_stripped:
+            return cat
+    return None
+
+def categorise(description: str, merchant: str, con=None, user_id: int = None) -> tuple:
+    """
+    Stage 0 (optional): user-specific learned overrides, built from prior
+    corrections via POST /categorisation/correct. Only runs when a DB
+    connection and user_id are supplied; omitted callers (e.g. tests) fall
+    straight through to the shared stages below.
+
     Stage 1: merchant-dictionary lookup, checked against both a spaced and a
     space-stripped normalisation, so UPI-style concatenated merchant
     references ("AmazonIndia") resolve the same as spaced ones
@@ -64,6 +90,10 @@ def categorise(description: str, merchant: str) -> tuple:
     """
     norm = _normalise(f"{description} {merchant}")
     norm_stripped = norm.replace(' ', '')
+
+    override_cat = _lookup_override(con, user_id, norm, norm_stripped)
+    if override_cat:
+        return override_cat, 0.97
 
     for keyword, cat in MERCHANT_DICT.items():
         keyword_stripped = keyword.replace(' ', '')
@@ -129,7 +159,8 @@ def get_transactions(
 def add_manual(txn: ManualTransaction, user=Depends(get_current_user)):
     con = get_connection()
     try:
-        cat, conf = categorise(txn.description or "", txn.merchant or "")
+        cat, conf = categorise(txn.description or "", txn.merchant or "",
+                                con=con, user_id=user["user_id"])
         if txn.category:
             cat  = txn.category
             conf = 1.0
@@ -163,7 +194,7 @@ async def import_csv(file: UploadFile = File(...), user=Depends(get_current_user
             desc      = str(row.get('description', ''))
             merchant  = str(row.get('merchant', ''))
             note      = str(row.get('note', ''))
-            cat, conf = categorise(desc, merchant)
+            cat, conf = categorise(desc, merchant, con=con, user_id=user["user_id"])
             if 'category' in row and str(row['category']) in CATEGORIES:
                 cat  = str(row['category'])
                 conf = 1.0
@@ -226,7 +257,7 @@ async def import_gpay_html(file: UploadFile = File(...), user=Depends(get_curren
                 merchant = lines[0] if lines else 'Unknown'
                 merchant = re.sub(r'₹.*', '', merchant).strip()[:100]
 
-                cat, conf = categorise('', merchant)
+                cat, conf = categorise('', merchant, con=con, user_id=user["user_id"])
 
                 con.execute("""
                     INSERT INTO transactions

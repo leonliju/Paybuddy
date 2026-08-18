@@ -70,6 +70,20 @@ def init_db():
     """)
 
     con.execute("""
+        CREATE SEQUENCE IF NOT EXISTS overrides_seq START 1;
+        CREATE TABLE IF NOT EXISTS merchant_overrides (
+            override_id      INTEGER PRIMARY KEY DEFAULT nextval('overrides_seq'),
+            user_id           INTEGER NOT NULL,
+            keyword           VARCHAR NOT NULL,
+            category          VARCHAR NOT NULL,
+            correction_count INTEGER NOT NULL DEFAULT 1,
+            created_at        TIMESTAMP DEFAULT current_timestamp,
+            updated_at        TIMESTAMP DEFAULT current_timestamp,
+            UNIQUE (user_id, keyword)
+        )
+    """)
+
+    con.execute("""
         CREATE SEQUENCE IF NOT EXISTS budgets_seq START 1;
         CREATE TABLE IF NOT EXISTS budgets (
             budget_id    INTEGER PRIMARY KEY DEFAULT nextval('budgets_seq'),
