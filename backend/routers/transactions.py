@@ -59,8 +59,15 @@ def categorise(description: str, merchant: str) -> tuple:
 
     Stage 2: boundary-safe (\\b-anchored) keyword regex.
 
-    Stage 3 (statistical NLP fallback) is not yet implemented here; unmatched
-    text still defaults to 'Other' at a flat 0.50 confidence.
+    Stage 3: spaCy lemmatization -> TF-IDF -> calibrated Logistic Regression
+    fallback classifier (see nlp_fallback/). Only fires on text that missed
+    both Stage 1 and Stage 2, and only trusts its own prediction above a
+    minimum confidence gate (nlp_fallback.classifier.MIN_ACCEPT_PROB); below
+    that, or if the model artifact isn't available at all, this stage is a
+    no-op and behaviour is identical to before this stage existed.
+
+    Unmatched text (all three stages miss) defaults to 'Other' at a flat
+    0.50 confidence.
     """
     norm = _normalise(f"{description} {merchant}")
     norm_stripped = norm.replace(' ', '')
@@ -73,6 +80,16 @@ def categorise(description: str, merchant: str) -> tuple:
     for cat, pattern in CATEGORY_PATTERNS.items():
         if pattern.search(norm):
             return cat, 0.75
+
+    try:
+        from nlp_fallback.classifier import predict as nlp_predict
+        nlp_result = nlp_predict(f"{description} {merchant}")
+        if nlp_result is not None:
+            return nlp_result
+    except Exception:
+        # Missing/corrupt model artifact, spaCy not installed, etc. --
+        # Stage 3 degrades to a no-op rather than breaking ingestion.
+        pass
 
     return 'Other', 0.50
 
