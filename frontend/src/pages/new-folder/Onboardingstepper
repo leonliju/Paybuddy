@@ -1,0 +1,37 @@
+// Shared step indicator for the 3-screen onboarding flow (Categories -> Budget -> Confirmation).
+// The design templates depict a 5-dot stepper (their flow bundles Account Info and a Loading
+// screen in as their own numbered steps); here Account Info is handled by Login/Register and
+// Loading is a transient splash, so only the 3 screens with real content get a numbered dot.
+export default function OnboardingStepper({ step }) {
+  const steps = ['Categories', 'Budget', 'Confirm'];
+  return (
+    <nav aria-label="Onboarding progress" className="mb-10 relative w-full max-w-md mx-auto">
+      <div className="flex items-center justify-between relative">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-px bg-surface-variant -z-0" />
+        {steps.map((label, i) => {
+          const n = i + 1;
+          const done = n < step;
+          const active = n === step;
+          return (
+            <div key={label} className="relative z-10 flex flex-col items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                done ? 'bg-primary shadow-[0_0_10px_rgba(192,192,192,0.3)]'
+                : active ? 'bg-primary ring-4 ring-primary/20'
+                : 'bg-surface-container border border-surface-variant'
+              }`}>
+                {done ? (
+                  <span className="material-symbols-outlined text-black text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                ) : active ? (
+                  <span className="font-label-sm text-label-sm text-black">{n}</span>
+                ) : null}
+              </div>
+              <span className={`font-label-sm text-label-sm uppercase tracking-widest ${active ? 'text-primary' : 'text-on-surface-variant'}`}>
+                {label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
