@@ -1,0 +1,40 @@
+# PayBuddy backend dependencies.
+#
+# Install into your OWN local virtual environment -- do not commit a venv
+# folder to git (see .gitignore). To set up:
+#   python -m venv venv
+#   .\venv\Scripts\Activate.ps1      (Windows)
+#   source venv/bin/activate         (macOS/Linux)
+#   pip install -r requirements.txt
+#   python -m spacy download en_core_web_sm
+
+# --- Web framework ---
+fastapi==0.141.1
+uvicorn==0.52.1
+pydantic==2.13.4
+python-multipart==0.0.32
+python-dotenv==1.2.2
+
+# --- Database ---
+duckdb==1.5.5
+
+# --- Auth ---
+python-jose[cryptography]==3.5.0
+
+# --- Data ingestion / parsing ---
+pandas==3.0.5
+beautifulsoup4==4.15.0
+pdfplumber==0.11.10
+
+# --- Categorisation Stage 3 (NLP fallback classifier) ---
+scikit-learn==1.9.0
+spacy==3.8.14
+joblib==1.5.3
+# After installing, also run: python -m spacy download en_core_web_sm
+
+# --- Forecasting / anomaly detection ---
+scipy==1.18.0
+statsmodels==0.14.6
+
+# --- RAG assistant (Gemini) ---
+google-genai==2.18.1

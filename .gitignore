@@ -7,6 +7,11 @@ __pycache__/
 venv/
 .venv/
 env/
+venvpay/
+venvpay_local/
+backend/venvpay/
+backend/venvpay_local/
+*/venv*/
 
 # Jupyter
 .ipynb_checkpoints/
