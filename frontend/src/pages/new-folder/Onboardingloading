@@ -1,0 +1,36 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// Transitional splash shown while the budgets set on the previous screen finish
+// propagating. Purely a timed animation — no fetch happens here, the /budget/set
+// calls already completed on the Budget step before we navigate to this screen.
+export default function OnboardingLoading() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const t = setTimeout(() => navigate('/onboarding/confirm'), 2200);
+    return () => clearTimeout(t);
+  }, [navigate]);
+
+  return (
+    <div className="dark bg-[#050505] text-on-surface h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(192,192,192,0.04)_0%,transparent_60%)] pointer-events-none" />
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="mb-12 rounded-full animate-pulse">
+          <svg className="fill-primary" height="120" viewBox="0 0 100 120" width="105" xmlns="http://www.w3.org/2000/svg">
+            <path d="M25,10 H60 C80,10 90,20 90,40 C90,60 80,70 60,70 H45 V110 H25 Z M45,30 V50 H55 C65,50 70,45 70,40 C70,35 65,30 55,30 Z" />
+          </svg>
+        </div>
+        <div className="w-64 h-[2px] bg-surface-container-high rounded-full overflow-hidden border-y border-white/10 relative">
+          <div className="h-full bg-primary rounded-full animate-[loadbar_2.2s_ease-out_forwards]" style={{ width: '0%' }} />
+        </div>
+      </div>
+      <div className="absolute bottom-16 z-10 w-full text-center">
+        <p className="font-headline-lg-mobile text-headline-lg-mobile text-primary lowercase tracking-tight opacity-70">
+          pay, analyse, predict
+        </p>
+      </div>
+      <style>{`@keyframes loadbar { from { width: 0% } to { width: 100% } }`}</style>
+    </div>
+  );
+}
